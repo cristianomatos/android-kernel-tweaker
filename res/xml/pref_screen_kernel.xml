@@ -51,6 +51,10 @@
             android:summary="If enabled, you will be able to only turn off the screen by swiping on navigation bar"
             android:title="Sweep 2 Sleep " />
         <com.dsht.kerneltweaker.CustomCheckBoxPreference
+            android:key="key_power_key_suspend"
+            android:summary="@string/power_key_suspend_summary"
+            android:title="@string/power_key_suspend_title" />
+        <com.dsht.kerneltweaker.CustomCheckBoxPreference
             android:key="key_f2w_switch"
             android:summary="If enabled, you will be able to only turn off the screen by swiping on navigation bar"
             android:title="Flick 2 Wake " />

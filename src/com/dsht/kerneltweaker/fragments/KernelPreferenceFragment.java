@@ -58,6 +58,7 @@ public class KernelPreferenceFragment extends PreferenceFragment implements OnPr
 	private CustomCheckBoxPreference mDoubleTap;
 	private CustomCheckBoxPreference mSweep2wake;
 	private CustomCheckBoxPreference mSweep2sleep;
+	private CustomCheckBoxPreference mPowerKeySuspend;
 	private CustomCheckBoxPreference mIntelliPlug;
 	private CustomCheckBoxPreference mEcoMode;
 	private CustomPreference mVibration;
@@ -88,6 +89,7 @@ public class KernelPreferenceFragment extends PreferenceFragment implements OnPr
 	private static final String DT2W_FILE = "/sys/android_touch/doubletap2wake";
 	private static final String S2W_FILE = "/sys/android_touch/sweep2wake";
 	private static final String S2W_SLEEPONLY_FILE = "/sys/android_touch/s2w_s2sonly";
+	private static final String POWER_KEY_SUSPEND_FILE = "/sys/module/qpnp_power_on/parameters/pwrkey_suspend";
 	private static final String INTELLIPLUG_FILE = "/sys/module/intelli_plug/parameters/intelli_plug_active";
 	private static final String ECOMODE_FILE = "/sys/module/intelli_plug/parameters/eco_mode_active";
 	private static final String DYNFSYNC_FILE = "/sys/kernel/dyn_fsync/Dyn_fsync_active";
@@ -122,6 +124,7 @@ public class KernelPreferenceFragment extends PreferenceFragment implements OnPr
 		Helpers.setPermissions(READ_AHEAD_FILE);
 		Helpers.setPermissions(S2W_FILE);
 		Helpers.setPermissions(S2W_SLEEPONLY_FILE);
+		Helpers.setPermissions(POWER_KEY_SUSPEND_FILE);
 		Helpers.setPermissions(SCHEDULER_FILE);
 		Helpers.setPermissions(SPEAKER_BOOST_FILE);
 		Helpers.setPermissions(TEMP_FILE);
@@ -150,6 +153,7 @@ public class KernelPreferenceFragment extends PreferenceFragment implements OnPr
 		mDoubleTap = (CustomCheckBoxPreference) findPreference("key_dt2w_switch");
 		mSweep2wake = (CustomCheckBoxPreference) findPreference("key_s2w_switch");
 		mSweep2sleep = (CustomCheckBoxPreference) findPreference("key_s2ws_switch");
+		mPowerKeySuspend = (CustomCheckBoxPreference) findPreference("key_power_key_suspend");
 		mIntelliPlug = (CustomCheckBoxPreference) findPreference("key_intelliplug_switch");
 		mEcoMode = (CustomCheckBoxPreference) findPreference("key_ecomode_switch");
 		mVibration = (CustomPreference) findPreference("key_vibration");
@@ -163,6 +167,7 @@ public class KernelPreferenceFragment extends PreferenceFragment implements OnPr
 		mDoubleTap.setKey(DT2W_FILE);
 		mSweep2wake.setKey(S2W_FILE);
 		mSweep2sleep.setKey(S2W_SLEEPONLY_FILE);
+		mPowerKeySuspend.setKey(POWER_KEY_SUSPEND_FILE);
 		mIntelliPlug.setKey(INTELLIPLUG_FILE);
 		mEcoMode.setKey(ECOMODE_FILE);
 		mVibration.setKey(VIBRATION_FILE);
@@ -180,6 +185,7 @@ public class KernelPreferenceFragment extends PreferenceFragment implements OnPr
 		mDoubleTap.setCategory(category);
 		mSweep2wake.setCategory(category);
 		mSweep2sleep.setCategory(category);
+		mPowerKeySuspend.setCategory(category);
 		mIntelliPlug.setCategory(category);
 		mEcoMode.setCategory(category);
 		mVibration.setCategory(category);
@@ -217,6 +223,7 @@ public class KernelPreferenceFragment extends PreferenceFragment implements OnPr
 		mDoubleTap.setTitleColor(color);
 		mSweep2wake.setTitleColor(color);
 		mSweep2sleep.setTitleColor(color);
+		mPowerKeySuspend.setTitleColor(color);
 		mIntelliPlug.setTitleColor(color);
 		mEcoMode.setTitleColor(color);
 		mVibration.setTitleColor(color);
@@ -324,6 +331,25 @@ public class KernelPreferenceFragment extends PreferenceFragment implements OnPr
 					value ="1";
 				} else {
 					cmd = "echo 0 > "+S2W_SLEEPONLY_FILE;
+					value = "0";
+				}
+				CMDProcessor.runSuCommand(cmd);
+				updateDb(preference, value, ((CustomCheckBoxPreference) preference).isBootChecked());
+				return true;
+			}
+		});
+
+		mPowerKeySuspend.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+
+			@Override
+			public boolean onPreferenceChange(Preference preference, Object newValue) {
+				String cmd = null;
+				String value = null;
+				if (newValue.toString().equals("true")) {
+					cmd = "echo 1 > "+POWER_KEY_SUSPEND_FILE;
+					value ="1";
+				} else {
+					cmd = "echo 0 > "+POWER_KEY_SUSPEND_FILE;
 					value = "0";
 				}
 				CMDProcessor.runSuCommand(cmd);
@@ -520,6 +546,19 @@ public class KernelPreferenceFragment extends PreferenceFragment implements OnPr
 			}else if(s2wsState.equals("0")) {
 				mSweep2sleep.setChecked(false);
 				mSweep2sleep.setValue("0");
+			}
+		}
+
+		if(!new File(POWER_KEY_SUSPEND_FILE).exists()) {
+			mKernelCategory.removePreference(mPowerKeySuspend);
+		} else {
+			String pKeySuspendState = Helpers.getFileContent(new File(POWER_KEY_SUSPEND_FILE));
+			if (pKeySuspendState.equals("1")) {
+				mPowerKeySuspend.setChecked(true);
+				mPowerKeySuspend.setValue("1");
+			} else if (pKeySuspendState.equals("0")) {
+				mPowerKeySuspend.setChecked(false);
+				mPowerKeySuspend.setValue("0");
 			}
 		}
 
