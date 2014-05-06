@@ -945,4 +945,8 @@ causes the kernel to prefer to reclaim dentries and inodes.</item>
     <string name="help">Help</string>
     <string name="edit_mode">Edit Mode</string>
 
+    <!-- Power key suspend -->
+    <string name="power_key_suspend_title">Power key suspend</string>
+    <string name="power_key_suspend_summary">If enabled, turning screen off with power button disable gestures to turn screen on (e.g. double tap 2 wake and/or sweep 2 wake)</string>
+
 </resources>
